@@ -3,13 +3,31 @@ import { Table, Divider, Tag ,DatePicker, Button } from 'antd';
 import { Row, Col ,message} from 'antd';
 import moment from 'moment';
 import { Modal } from 'antd';
-import {Input} from 'antd';
+import {Select,Input} from 'antd';
 import { getFactTableData ,approveTimeSheets} from './Actions';
 import {connect} from 'react-redux';
 import Lightbox from 'react-images';
 import Logo from './../../Images/logo.png';
+import {activegetClients} from './Actions';
 
 const { TextArea } = Input;
+
+
+
+const format = 'HH:mm:ss';
+const Option = Select.Option;
+const InputStyle={
+	width:"100%",
+	padding:"5px 5px"
+}
+const LabelStyle = {
+
+	textAlign:"center",
+	paddingTop:"10px"
+}
+const submitStyle = {
+	width:"90%"
+}
 
 const error =(data)=>{
 	message.error(data);
@@ -24,6 +42,9 @@ const mapDispatchToProps = (dispatch)=>{
 			dispatch(getFactTableData(data))
 
 		},
+		activegetClients : ( )=>{
+			dispatch(activegetClients());
+		},
 		approveTimeSheets : (data)=>{
 			dispatch(approveTimeSheets(data))
 		},
@@ -34,11 +55,15 @@ const mapStateToProps = (state)=>{
 	return {
 		userid : state.Reducer.user.UserId,
 		factTableData : state.StaffDashboard.factTableData,
+		role : state.Reducer.user.Role,
+		activeClients:state.ClientDetails.activeClients,
+		shiftDetails : state.ClientDetails.shiftDetails,
+		addJobflag : state.Reducer.addJobflag,
+		addJobMsg : state.Reducer.addJobMsg,
 	}
 }
 
-
-class ApproveTimeSheets extends React.Component{
+class ProcessTimeSheets extends React.Component{
 
 	constructor(props){
 		super(props);
@@ -46,6 +71,7 @@ class ApproveTimeSheets extends React.Component{
 			visible: 'true',
 			startDate: null,
 			endDate:null,
+			client : '',
 			ack_path:null,
 			lightboxIsOpen:false,
 			
@@ -66,6 +92,13 @@ class ApproveTimeSheets extends React.Component{
     });
   }
 
+  handleChangeClient = (value)=> {
+	  this.setState({
+	  	client : value,
+	  })
+	 
+	}
+
   handleCancel = (e) => {
     console.log(e);
     this.setState({
@@ -84,15 +117,8 @@ class ApproveTimeSheets extends React.Component{
 		endDate:endDate.toISOString().slice(0,10),
 	})
 
-
-  		let data = {
-			startDate : startDate,
-			endDate : endDate,
-			
-		}
-	
-	
-  			this.props.getFactTableData(data);
+  		
+	this.props.activegetClients();
 	
   }
   componentWillReceiveProps(nextProps){
@@ -109,7 +135,7 @@ class ApproveTimeSheets extends React.Component{
 		}
 	
 	
-  		this.props.getFactTableData(data);
+  	//	this.props.getFactTableData(data);
     }
  }
 
@@ -143,6 +169,13 @@ class ApproveTimeSheets extends React.Component{
 	
 		})
 
+	}
+
+	loadClients = (clients)=>{
+     const listItems = clients.map((number) =>
+						  <Option key = {number} value={number}>{number}</Option>
+						);
+		return listItems;
 	}
 
 
@@ -192,25 +225,7 @@ render(){
 				  dataIndex: 'remarks',
 				  width:250,			  
 				},
-				 {
-				  title: 'ACK',
-				  dataIndex: 'ack_path',
-			
-				  width:100,
-				  render: (text, record) => {
-				  	//console.log(record)
-
-				  	return (
-				    <span>
-				       <Button type="primary" onClick={()=>{this.setState({lightboxIsOpen:true,
-				       														     ack_path:record.ack_path})}} >
-				          View ACK
-				        </Button>
-				    </span>
-
-				  )},
-				  
-				},{
+				{
 				  title: 'Action',
 				  dataIndex: 'Action',
 				  key: 'Action',
@@ -218,10 +233,9 @@ render(){
 				  width:100,
 				  render: (text, record) => (
 				    <span>
-				       <Button type= {record.flag == 'Y' ? 'danger' : 'primary'}
-				       		 onClick={()=>{this.approve(record)}} >
-				          {record.flag == 'Y' ? 'Reject' : 'Approve'}
-				        </Button>
+    
+				          {record.flag == 'Y' ? 'Approved' : 'Not Approved'}
+				       
 				    </span>
 
 				  ),
@@ -232,15 +246,8 @@ render(){
 	return(
 		<div>
 			<Row>
-				<Col xs={24} sm={24} md={20} lg={20} xl={20}>
-				  <Lightbox
-						  images={[
-						    { src:this.state.ack_path}
-						   
-						  ]}
-						  isOpen={this.state.lightboxIsOpen}
-						   onClose={()=>{this.setState({lightboxIsOpen:false})}}
-						/>
+				<Col xs={24} sm={24} md={24} lg={24} xl={24}>
+				 
 				</Col>
 			</Row>
 			<Row>
@@ -252,18 +259,35 @@ render(){
 
       					 </Col>
 						<Col xs={24} sm={24} md={20} lg={20} xl={20}> 
+							 <Row>
+							  	<Col xs={4} sm={4} md={4} lg={4} xl={4}>
+							  		<b>	Client </b>
+							  	</Col>	
+							  	<Col xs={12} sm={12} md={6} lg={6} xl={6}>
+							  	  	<Select value={this.state.client} onChange={this.handleChangeClient} >
+										{this.loadClients(this.props.activeClients)}
+								    </Select>
+							  	</Col>	
+
+							  </Row>
 							<Row>
+								<Col xs={4} sm={4} md={4} lg={4} xl={4}>
+							  		<b>	Select Date Range </b>
+							  	</Col>	
 								
 								<Col xs={12} sm={12} md={6} lg={6} xl={6}>
 									<RangePicker defaultValue={[moment( startDate, dateFormat), moment(endDate, dateFormat)]} onChange = {this.OnChangeDate}/>
 
 								</Col>
-								<Col xs={12} sm={12} md={6} lg={6} xl={6}>
-				        			<Button type="primary" onClick={this.loadJobs}> Load </Button>
 
+								<Col xs={12} sm={12} md={6} lg={6} xl={6} >
+				        			<Button type="primary" onClick={this.loadJobs}> Load </Button>
+				        		
 								</Col>
+
 							</Row>
-														
+							
+												
 			     			<Row>
 			     				<Col xs={24} sm={24} md={24} lg={24} xl={24} >
            						 	<Table columns={columns} 
@@ -272,6 +296,15 @@ render(){
            						 			dataSource={this.props.factTableData} />
 					   			</Col>
           					</Row>
+
+          					<Row>
+
+								<Col xs={12} sm={12} md={6} lg={6} xl={6} >
+				        			
+				        			<Button type="primary" > Process Invoice </Button>
+								</Col>
+
+							</Row>
 						</Col>
        					<Col xs={0} sm={0} md={2} lg={2} xl={2}> 
 						</Col>
@@ -289,6 +322,6 @@ render(){
 
 }
 
-export default connect ( mapStateToProps ,mapDispatchToProps ) (ApproveTimeSheets);
+export default connect ( mapStateToProps ,mapDispatchToProps ) (ProcessTimeSheets);
 
 

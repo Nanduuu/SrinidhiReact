@@ -3,6 +3,7 @@ import {connect} from 'react-redux';
 import AddClientCharges from './AddClientCharges';
 import AddStaffCharges from './AddStaffCharges';
 import ApproveTimeSheets from './ApproveTimeSheets';
+import ProcessTimeSheets from './ProcessTimeSheets';
 import { Collapse ,Divider} from 'antd';
 import {Redirect} from 'react-router-dom';
 
@@ -58,7 +59,9 @@ class Invoice extends React.Component{
 					<Panel header = { <Namebar text= { "Approve Time Sheets"} />} key="3">
 						<ApproveTimeSheets/>
 					</Panel>
-					
+					<Panel header = { <Namebar text= { "Process Time Sheets"} />} key="4">
+						<ProcessTimeSheets/>
+					</Panel>
 				</Collapse>
 
 

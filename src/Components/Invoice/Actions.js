@@ -33,3 +33,9 @@ export function approveTimeSheets(data){
 		payload : data,
 	}
 }
+
+export function activegetClients(){
+	return {
+		type:"ACTIVEGETCLIENTS",
+	}
+}

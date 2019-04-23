@@ -24,6 +24,9 @@ export class CcDropdown extends React.Component{
 					    <Menu.Item key="Invoice Process">
 				          <Link to= { this.props.match.url + '/invoiceprocess'}>  <Icon type="user" />Invoice Process </Link>
 				        </Menu.Item>
+				         <Menu.Item key="USER DETAILS">
+				          <Link to= { this.props.match.url + '/UserDetails'}>  <Icon type="user" />USER DETAILS </Link>
+				        </Menu.Item>
 					  </Menu>
 					);
 
@@ -31,7 +34,7 @@ export class CcDropdown extends React.Component{
 
 			<Row >
 				<Col xs={2} sm={2} md={2}>
-					    <Dropdown overlay={menu} placement="bottomCenter" >
+					    <Dropdown overlay={menu}  trigger={['click']} placement="bottomCenter" >
 					      <Button><Icon type="menu-fold" theme="outlined" style ={{width:"50%",height:"100%"}} /></Button>
 					    </Dropdown>
 				</Col>
